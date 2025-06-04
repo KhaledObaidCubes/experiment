@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Vue + TS</title>
+  </head>
+  <style>
+    .container {
+      border: 1px solid red !important;
+      background-color: rgb(79, 195, 241) !important;
+      overflow: hidden !important;
+      clear: both !important;
+    }
+
+    .draggableElement {
+      cursor: move;
+      border: 1px solid #045f0b;
+      width: 110px;
+      background-color: rgb(253, 171, 47);
+
+    }
+
+    .droppableArea {
+      border: 2px dashed #ccc;
+      background-color: #045f0b;
+      color: #fff;
+      width: 300px;
+      float: left;
+    }
+  </style>
+
+  <body>
+    <!-- <div id="app"></div> -->
+    <!--  Drag drop example  -->
+    <div class="container">
+      <span class="draggableElement" draggable="true">Drag Me Iam a span</span>
+      <input type="button" class="draggableElement" draggable="true" value="DragMe am a button"></input>
+      <div class="draggableElement" draggable="true">Drag Me am a div0</div>
+      <div class="draggableElement" draggable="true">Drag Me am a div1</div>
+      <div class="draggableElement" draggable="true">Drag Me am a div2</div>
+      <div class="draggableElement" draggable="true">Drag Me am a div3</div>
+      <div class="draggableElement" draggable="true">Drag Me am a div4</div>
+    </div>
+    <div class=" container">
+      <div class="droppableArea">Drop Here (1)</div>
+      <div class="droppableArea">Drop Here (2)</div>
+      <div class="droppableArea">Drop Here (3)</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/scripts/drag-n-drop.ts"></script>
+  </body>
+
+</html>
