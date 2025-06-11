@@ -1,63 +1,69 @@
-import type { IDragDropOptions } from "./meta";
+import type { DraggableNode } from "./meta";
 
-export class DragDropController implements IDragDropOptions {
-  draggableSelector: string;
-  droppableSelector: string;
-  dropTypeAttribute: string;
+export class DragDropController {
+  root: DraggableNode;
+  draggingNode: DraggableNode | null = null;
 
-  constructor(options: IDragDropOptions) {
-    this.draggableSelector = options.draggableSelector;
-    this.droppableSelector = options.droppableSelector;
-    this.dropTypeAttribute = options.dropTypeAttribute || "data-drop_type";
+  constructor(root: DraggableNode) {
+    this.root = root;
   }
 
-  init() {
-    const draggableElements = document.querySelectorAll<HTMLElement>(
-      this.draggableSelector
-    );
-    const droppableElements = document.querySelectorAll<HTMLElement>(
-      this.droppableSelector
-    );
+  startDrag(targetId: string) {
+    console.log(targetId);
 
-    draggableElements.forEach((el, index) => {
-      if (!el.id) {
-        el.id = `draggable-${index}`;
-      }
+    if (!this.draggingNode || this.draggingNode.id === targetId) return;
 
-      el.setAttribute("draggable", "true");
+    const targetNode = this.findNode(this.root, targetId);
+    if (!targetNode || this.isDescendant(this.draggingNode, targetNode)) return;
 
-      el.addEventListener("dragstart", (event: DragEvent) => {
-        if (event.dataTransfer) {
-          event.dataTransfer.setData("text/plain", el.id);
-        }
-      });
-    });
+    this.removeNode(this.root, this.draggingNode.id);
+    targetNode.children.push(this.draggingNode);
+    this.draggingNode = null;
+  }
 
-    droppableElements.forEach((area) => {
-      area.addEventListener("dragover", (event: DragEvent) => {
-        event.preventDefault();
-      });
+  dropOver(targetId: string) {
+    console.log("Dropping over target ID:", targetId);
+    if (!this.draggingNode || this.draggingNode.id === targetId) return;
 
-      area.addEventListener("drop", (event: DragEvent) => {
-        event.preventDefault();
-        const data = event.dataTransfer?.getData("text/plain");
-        if (!data) return;
+    const targetNode = this.findNode(this.root, targetId);
+    if (!targetNode || this.isDescendant(this.draggingNode, targetNode)) return;
 
-        const draggedElement = document.getElementById(data);
-        if (!draggedElement) return;
+    // Remove from old parent
+    this.removeNode(this.root, this.draggingNode.id);
 
-        const dragType =
-          draggedElement.getAttribute(this.dropTypeAttribute) || "";
-        const dropType = area.getAttribute(this.dropTypeAttribute) || "";
+    // Add as child
+    targetNode.children.push(this.draggingNode);
+    this.draggingNode = null;
+  }
 
-        if (dragType === dropType || dropType === "any") {
-          area.appendChild(draggedElement);
-        } else {
-          console.warn(
-            `Invalid drop: '${dragType}' can't be dropped into '${dropType}'`
-          );
-        }
-      });
-    });
+  findNode(current: DraggableNode, id: string): DraggableNode | null {
+    if (current.id === id) return current;
+
+    for (const child of current.children) {
+      const found = this.findNode(child, id);
+      if (found) return found;
+    }
+
+    return null;
+  }
+
+  removeNode(parent: DraggableNode, id: string): boolean {
+    const index = parent.children.findIndex((child) => child.id === id);
+    if (index !== -1) {
+      parent.children.splice(index, 1);
+      return true;
+    }
+    for (const child of parent.children) {
+      if (this.removeNode(child, id)) return true;
+    }
+    return false;
+  }
+
+  isDescendant(node: DraggableNode, possibleAncestor: DraggableNode): boolean {
+    if (node === possibleAncestor) return true;
+    for (const child of possibleAncestor.children) {
+      if (this.isDescendant(node, child)) return true;
+    }
+    return false;
   }
 }

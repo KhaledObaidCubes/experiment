@@ -1,33 +1,51 @@
-<script setup lang="ts">
-import dragDrop from "./components/dragDrop.vue";
-import { DragDropController } from "./domain/drag-controller/def";
-
-window.onload = () => {
-  const controller = new DragDropController({
-    draggableSelector: ".draggableElement",
-    droppableSelector: ".droppableArea",
-    dropTypeAttribute: "data-drop_type",
-  });
-
-  controller.init();
-};
-</script>
-
 <template>
-  <drag-drop />
+  <main>
+    <DraggableItem :node="controller.root" />
+  </main>
 </template>
 
+<script setup lang="ts">
+import { defineAsyncComponent, provide } from "vue";
+import { DragDropController } from "./domain/drag-controller/def";
+import type { DraggableNode } from "./domain/drag-controller/meta";
+
+// Initial root item
+const rootNode: DraggableNode = {
+  id: "root",
+  label: "Root Item",
+  children: [
+    { id: "a", label: "Item A", children: [] },
+    {
+      id: "b",
+      label: "Item B",
+      children: [
+        { id: "d", label: "Item D", children: [] },
+        {
+          id: "e",
+          label: "Item E",
+          children: [
+            { id: "g", label: "Item G", children: [] },
+            { id: "h", label: "Item H", children: [] },
+            { id: "i", label: "Item I", children: [] },
+          ],
+        },
+        { id: "f", label: "Item F", children: [] },
+      ],
+    },
+    { id: "c", label: "Item C", children: [] },
+  ],
+};
+
+const controller = new DragDropController(rootNode);
+provide("dragDropController", controller);
+
+const DraggableItem = defineAsyncComponent(
+  () => import("./components/draggable.vue")
+);
+</script>
+
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+main {
+  padding: 30px;
 }
 </style>

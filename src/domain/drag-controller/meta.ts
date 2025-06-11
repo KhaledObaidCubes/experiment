@@ -1,6 +1,5 @@
-interface IDragDropOptions {
-  draggableSelector: string;
-  droppableSelector: string;
-  dropTypeAttribute?: string; // e.g. "data-drop_type"
+export interface DraggableNode {
+  id: string;
+  label: string;
+  children: DraggableNode[];
 }
-export type { IDragDropOptions };
